@@ -18,6 +18,7 @@ export interface PartnerEdc {
   country: string;
   primaryColor: string;
   accentColor: string;
+  logo?: string;
   logoInitial: string;
   supportEmail: string;
   licenseDuration: string;

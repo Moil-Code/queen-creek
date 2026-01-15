@@ -8,7 +8,7 @@ interface LogoProps {
   showText?: boolean;
 }
 
-const QC_CHAMBER_LOGO_URL = '/Queen Creek Chamber Of Commerce Logo Full Color RGB 1200px@300ppi.png';
+const QC_CHAMBER_LOGO_URL = '/logo.png';
 
 const Logo: React.FC<LogoProps> = ({ 
   size = 'md', 
