@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, ArrowLeft, CheckCircle, Shield } from 'lucide-react';
 
-const QC_CHAMBER_LOGO_URL = '/Queen Creek Chamber Of Commerce Logo Full Color RGB 1200px@300ppi.png';
+const QC_CHAMBER_LOGO_URL = '/logo.png';
 
 function SignupContent() {
   const router = useRouter();
