@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { LicenseActivationEmail } from '../emails/license-activation';
 import { TeamInvitationEmail } from '../emails/team-invitation';
 import { getEdcByEmail, getDefaultEdc, type PartnerEdc } from './partnerEdcs';
+import { getLogoUrl } from './config';
 
 // Initialize Resend with API key
 const resend = new Resend(process.env.RESEND_API);
@@ -12,6 +13,7 @@ const FROM_EMAIL = process.env.FROM_EMAIL || 'Queen Creek Chamber <onboarding@re
 export interface EdcEmailInfo {
   programName: string;
   fullName: string;
+  logo?: string;
   logoInitial: string;
   primaryColor: string;
   supportEmail: string;
@@ -45,6 +47,7 @@ function edcToEmailInfo(edc: PartnerEdc): EdcEmailInfo {
   return {
     programName: edc.programName,
     fullName: edc.fullName,
+    logo: edc.logo || getLogoUrl(),
     logoInitial: edc.logoInitial,
     primaryColor: edc.primaryColor,
     supportEmail: edc.supportEmail,

@@ -32,11 +32,11 @@ interface LicenseActivationEmailProps {
 }
 
 // Default EDC info (Queen Creek Chamber)
+// Note: logo URL is now dynamically set by the email.ts utility
 const defaultEdc: EdcInfo = {
   programName: 'Queen Creek Chamber',
   fullName: 'Queen Creek Chamber of Commerce',
   logoInitial: 'Q',
-  logo: 'https://queencreek.moilapp.com/logo.png',
   primaryColor: '#0073B5',
   supportEmail: 'cs@moilapp.com',
   licenseDuration: '1 year',
