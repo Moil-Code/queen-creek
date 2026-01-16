@@ -7,9 +7,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { Spinner } from '@/components/ui/spinner';
+import { InteractiveGridPattern } from '@/components/ui/interactive-grid';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 
-const QC_CHAMBER_LOGO_URL = '/queen_creek.png';
+const QC_CHAMBER_LOGO_URL = '/logo.png';
 
 function LoginContent() {
   const router = useRouter();
@@ -106,19 +107,15 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center font-work-sans overflow-hidden bg-slate-900">
-      {/* Admin Background - Darker, more authoritative */}
-      <div className="absolute inset-0 w-full h-full">
-        {/* Base Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#1e293b] to-[#0f172a] opacity-90"></div>
-        
-        {/* Ambient Orbs - More subtle for admin */}
-        <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-qc-primary mix-blend-overlay rounded-full blur-[120px] opacity-40 animate-pulse-slow"></div>
-        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500 mix-blend-soft-light rounded-full blur-[100px] opacity-20 animate-float"></div>
-        
-        {/* Texture Overlay */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
-      </div>
+    <div className="min-h-screen relative flex items-center justify-center font-work-sans overflow-hidden bg-white">
+      <InteractiveGridPattern
+        className="stroke-gray-200"
+        width={40}
+        height={40}
+        squares={[30, 30]}
+        squaresClassName="stroke-gray-200"
+        hoverClassName="fill-qc-primary-faint"
+      />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="w-full max-w-md mx-auto">
@@ -136,11 +133,11 @@ function LoginContent() {
                     />
                 </div>
             </Link>
-            <p className="text-slate-400 text-sm">Secure access for platform administrators</p>
+            <p className="text-gray-600 text-sm">Secure access for platform administrators</p>
           </div>
 
           {/* Login Card */}
-          <div className="bg-white rounded-[24px] p-8 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] relative overflow-hidden animate-slide-in backdrop-blur-sm bg-opacity-95">
+          <div className="bg-white rounded-[24px]  border border-[#1f2a44] p-8 shadow-xl relative overflow-hidden animate-slide-in bg-opacity-95">
              {/* Decorative top accent */}
              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-qc-primary via-indigo-500 to-qc-secondary"></div>
 
@@ -230,7 +227,7 @@ function LoginContent() {
           </div>
           
           <div className="mt-8 text-center">
-            <Link href="/login" className="text-white/40 hover:text-white text-sm transition-colors flex items-center justify-center gap-2">
+            <Link href="/login" className="text-gray-500 hover:text-gray-900 text-sm transition-colors flex items-center justify-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
                 Return to User Login
             </Link>
@@ -244,10 +241,10 @@ function LoginContent() {
 export default function AdminLoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" className="mx-auto border-qc-primary" />
-          <p className="mt-4 text-slate-400">Loading...</p>
+          <p className="mt-4 text-gray-500">Loading...</p>
         </div>
       </div>
     }>

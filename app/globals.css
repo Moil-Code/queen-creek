@@ -177,6 +177,15 @@ body {
   border-color: var(--qc-primary);
 }
 
+.fill-qc-primary {
+  fill: var(--qc-primary);
+}
+
+.fill-qc-primary-faint {
+  fill: var(--qc-primary);
+  fill-opacity: 0.1;
+}
+
 /* Animations */
 @keyframes pulse-slow {
 
