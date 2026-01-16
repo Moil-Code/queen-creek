@@ -7,9 +7,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { Spinner } from '@/components/ui/spinner';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User, ArrowLeft, CheckCircle, Shield } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, ArrowLeft, Shield } from 'lucide-react';
 
-const QC_CHAMBER_LOGO_URL = '/logo.png';
+const QC_CHAMBER_LOGO_URL = '/queen_creek.png';
 
 function SignupContent() {
   const router = useRouter();
@@ -144,9 +144,9 @@ function SignupContent() {
                     <Image
                       src={QC_CHAMBER_LOGO_URL}
                       alt="Queen Creek Chamber Logo"
-                      width={150}
-                      height={48}
-                      className="h-12 object-contain group-hover:scale-105 transition-transform"
+                      width={240}
+                      height={80}
+                      className="h-20 object-contain group-hover:scale-105 transition-transform drop-shadow-[0_0_8px_rgba(0,115,181,0.3)]"
                       priority
                     />
                 </div>
