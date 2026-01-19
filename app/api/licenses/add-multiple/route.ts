@@ -158,26 +158,40 @@ export async function POST(request: Request) {
     });
 
     // Update message_id and email_status for each license based on results
-    await Promise.all(
-      emailResults.results.map(async (result) => {
-        if (result.success && result.messageId) {
-          await supabase
-            .from('licenses')
-            .update({
-              message_id: result.messageId,
-              email_status: 'sent',
-            })
-            .eq('id', result.licenseId);
-        } else {
+    if (emailResults.results && Array.isArray(emailResults.results) && emailResults.results.length > 0) {
+      await Promise.all(
+        emailResults.results.map(async (result) => {
+          if (result.success && result.messageId) {
+            await supabase
+              .from('licenses')
+              .update({
+                message_id: result.messageId,
+                email_status: 'sent',
+              })
+              .eq('id', result.licenseId);
+          } else {
+            await supabase
+              .from('licenses')
+              .update({
+                email_status: 'failed',
+              })
+              .eq('id', result.licenseId);
+          }
+        })
+      );
+    } else if (insertedLicenses && insertedLicenses.length > 0) {
+      // If no results returned, mark all inserted licenses as failed
+      await Promise.all(
+        insertedLicenses.map(async (license) => {
           await supabase
             .from('licenses')
             .update({
               email_status: 'failed',
             })
-            .eq('id', result.licenseId);
-        }
-      })
-    );
+            .eq('id', license.id);
+        })
+      );
+    }
 
     const results = {
       success: insertedLicenses?.length || 0,

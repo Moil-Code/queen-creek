@@ -201,9 +201,13 @@ export async function sendBatchLicenseActivationEmails(data: BatchLicenseActivat
 
           // Send batch
           const result = await resend.batch.send(batchEmails);
+          
+          // Log the response for debugging
+          console.log('Resend batch response:', JSON.stringify(result, null, 2));
 
           if (result.error) {
             // If batch fails, mark all as failed
+            console.error('Batch send error:', result.error);
             return batch.map(license => ({
               email: license.email,
               licenseId: license.licenseId,
@@ -213,16 +217,23 @@ export async function sendBatchLicenseActivationEmails(data: BatchLicenseActivat
           }
 
           // Map successful results back to licenses
-          // Resend batch.send returns an array of email IDs
-          const batchData = Array.isArray(result.data) ? result.data : [];
-          return batch.map((license, index) => ({
-            email: license.email,
-            licenseId: license.licenseId,
-            success: true as const,
-            messageId: typeof batchData[index] === 'object' && batchData[index] !== null 
-              ? (batchData[index] as any).id 
-              : undefined,
-          }));
+          // Resend batch.send returns { data: { data: [{ id: "..." }, { id: "..." }] } }
+          const responseData = result.data as unknown as { data: Array<{ id: string }> };
+          const batchData = responseData?.data || [];
+          console.log('Batch data extracted:', batchData);
+          
+          return batch.map((license, index) => {
+            const emailResult = batchData[index];
+            const messageId = emailResult?.id;
+            console.log(`License ${license.licenseId}: messageId = ${messageId}`);
+            
+            return {
+              email: license.email,
+              licenseId: license.licenseId,
+              success: true as const,
+              messageId: messageId,
+            };
+          });
         } catch (error) {
           // If batch throws error, mark all as failed
           return batch.map(license => ({

@@ -142,7 +142,7 @@ export function LicenseList({ licenses, loading, onRefresh }: LicenseListProps) 
         const data = await response.json();
         toast({
           title: "Success",
-          description: `Synced ${data.synced} email statuses from Resend`,
+          description: `Synced ${data.synced} email statuses`,
           type: "success"
         });
         onRefresh();
@@ -250,7 +250,7 @@ export function LicenseList({ licenses, loading, onRefresh }: LicenseListProps) 
             <button 
               onClick={handleSyncStatuses}
               disabled={syncingStatuses}
-              className="flex-1 md:flex-initial px-5 py-2.5 bg-white border-2 border-qc-primary text-qc-primary rounded-lg font-semibold hover:bg-blue-50 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 md:flex-initial px-3 lg:px-5 py-2.5 bg-white border-2 border-qc-primary text-qc-primary rounded-lg font-semibold hover:bg-blue-50 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title="Sync email statuses from Resend"
             >
               <RefreshCw className={`w-4 h-4 ${syncingStatuses ? 'animate-spin' : ''}`} />
@@ -258,7 +258,7 @@ export function LicenseList({ licenses, loading, onRefresh }: LicenseListProps) 
             </button>
             <button 
               onClick={handleCsvExport}
-              className="flex-1 md:flex-initial px-5 py-2.5 bg-qc-secondary text-qc-primary rounded-lg font-semibold hover:bg-yellow-400 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-sm"
+              className="flex-1 md:flex-initial px-3 lg:px-5 py-2.5 bg-qc-secondary text-qc-primary rounded-lg font-semibold hover:bg-yellow-400 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-sm"
             >
               <Download className="w-4 h-4" />
               Export CSV
@@ -280,31 +280,20 @@ export function LicenseList({ licenses, loading, onRefresh }: LicenseListProps) 
             <p className="text-gray-500 text-sm mt-1">Try adjusting your search or add a new license above.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Business Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Business Type</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date Added</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Activated</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredLicenses.map((license) => (
-                  <tr key={license.id} className="hover:bg-blue-50/50 transition-colors duration-200 group">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+          <>
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+              {filteredLicenses.map((license) => (
+                <div key={license.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
                       {editingLicenseId === license.id ? (
                         <div className="flex items-center gap-2">
                           <input
                             type="email"
                             value={editingEmail}
                             onChange={(e) => setEditingEmail(e.target.value)}
-                            className="px-2 py-1 border border-qc-primary rounded text-sm focus:outline-none focus:ring-2 focus:ring-qc-primary"
+                            className="flex-1 px-2 py-1 border border-qc-primary rounded text-sm focus:outline-none focus:ring-2 focus:ring-qc-primary"
                             autoFocus
                             disabled={updatingEmail}
                           />
@@ -312,7 +301,6 @@ export function LicenseList({ licenses, loading, onRefresh }: LicenseListProps) 
                             onClick={() => handleSaveEmail(license.id)}
                             disabled={updatingEmail}
                             className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
-                            title="Save"
                           >
                             {updatingEmail ? <Spinner size="sm" className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                           </button>
@@ -320,90 +308,208 @@ export function LicenseList({ licenses, loading, onRefresh }: LicenseListProps) 
                             onClick={handleCancelEdit}
                             disabled={updatingEmail}
                             className="p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors"
-                            title="Cancel"
                           >
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <span>{license.email}</span>
+                          <span className="font-medium text-gray-900 truncate">{license.email}</span>
                           {!license.isActivated && (
                             <button
                               onClick={() => handleEditEmail(license)}
-                              className="p-1 text-gray-400 hover:text-qc-primary hover:bg-blue-50 rounded transition-colors opacity-0 group-hover:opacity-100"
-                              title="Edit email"
+                              className="p-1 text-gray-400 hover:text-qc-primary hover:bg-blue-50 rounded transition-colors"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
                       )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {license.isActivated && license.businessName ? license.businessName : <span className="text-gray-400">-</span>}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {license.isActivated && license.businessType ? license.businessType : <span className="text-gray-400">-</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold capitalize border ${
-                        license.isActivated 
-                          ? 'bg-green-50 text-green-700 border-green-200' 
-                          : 'bg-orange-50 text-orange-700 border-orange-200'
-                      }`}>
-                        {license.isActivated ? (
-                          <CheckCircle className="w-3 h-3" />
-                        ) : (
-                          <Clock className="w-3 h-3" />
-                        )}
-                        {license.isActivated ? 'activated' : 'pending'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span 
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold capitalize border ${
-                          license.emailStatus === 'delivered' || license.emailStatus === 'opened'
-                            ? 'bg-green-50 text-green-700 border-green-200' 
-                            : license.emailStatus === 'bounced' || license.emailStatus === 'complained' || license.emailStatus === 'failed'
-                            ? 'bg-red-50 text-red-700 border-red-200'
-                            : license.emailStatus === 'sent'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-gray-50 text-gray-700 border-gray-200'
-                        }`}
+                    </div>
+                    {!license.isActivated && (
+                      <button 
+                        onClick={() => handleResendEmail(license.id)}
+                        className="p-2 border border-gray-200 bg-white rounded-lg text-gray-500 hover:border-qc-primary hover:text-qc-primary hover:bg-blue-50 transition-all duration-200 ml-2"
+                        title="Resend Invitation"
                       >
-                        {license.emailStatus === 'delivered' || license.emailStatus === 'opened' ? (
-                          <CheckCircle className="w-3 h-3" />
-                        ) : license.emailStatus === 'bounced' || license.emailStatus === 'complained' || license.emailStatus === 'failed' ? (
-                          <AlertCircle className="w-3 h-3" />
-                        ) : license.emailStatus === 'sent' ? (
-                          <Send className="w-3 h-3" />
-                        ) : (
-                          <Mail className="w-3 h-3" />
-                        )}
-                        {license.emailStatus || 'pending'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{formatDate(license.createdAt)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {license.activatedAt ? formatDate(license.activatedAt) : <span className="text-gray-400">-</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      {!license.isActivated && (
-                        <button 
-                          onClick={() => handleResendEmail(license.id)}
-                          className="p-2 border border-gray-200 bg-white rounded-lg text-gray-500 hover:border-qc-primary hover:text-qc-primary hover:bg-blue-50 transition-all duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100"
-                          title="Resend Invitation"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                        </button>
+                        <RefreshCw className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold capitalize border ${
+                      license.isActivated 
+                        ? 'bg-green-50 text-green-700 border-green-200' 
+                        : 'bg-orange-50 text-orange-700 border-orange-200'
+                    }`}>
+                      {license.isActivated ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                      {license.isActivated ? 'activated' : 'pending'}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold capitalize border ${
+                      license.emailStatus === 'delivered' || license.emailStatus === 'opened'
+                        ? 'bg-green-50 text-green-700 border-green-200' 
+                        : license.emailStatus === 'bounced' || license.emailStatus === 'complained' || license.emailStatus === 'failed'
+                        ? 'bg-red-50 text-red-700 border-red-200'
+                        : license.emailStatus === 'sent'
+                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                        : 'bg-gray-50 text-gray-700 border-gray-200'
+                    }`}>
+                      {license.emailStatus === 'delivered' || license.emailStatus === 'opened' ? (
+                        <CheckCircle className="w-3 h-3" />
+                      ) : license.emailStatus === 'bounced' || license.emailStatus === 'complained' || license.emailStatus === 'failed' ? (
+                        <AlertCircle className="w-3 h-3" />
+                      ) : license.emailStatus === 'sent' ? (
+                        <Send className="w-3 h-3" />
+                      ) : (
+                        <Mail className="w-3 h-3" />
                       )}
-                    </td>
+                      {license.emailStatus || 'pending'}
+                    </span>
+                  </div>
+
+                  {license.isActivated && (license.businessName || license.businessType) && (
+                    <div className="text-sm text-gray-600 mb-2">
+                      {license.businessName && <span className="font-medium">{license.businessName}</span>}
+                      {license.businessName && license.businessType && <span className="mx-1">•</span>}
+                      {license.businessType && <span>{license.businessType}</span>}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>Added: {formatDate(license.createdAt)}</span>
+                    {license.activatedAt && <span>Activated: {formatDate(license.activatedAt)}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Business Name</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Business Type</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date Added</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Activated</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredLicenses.map((license) => (
+                    <tr key={license.id} className="hover:bg-blue-50/50 transition-colors duration-200 group">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        {editingLicenseId === license.id ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="email"
+                              value={editingEmail}
+                              onChange={(e) => setEditingEmail(e.target.value)}
+                              className="px-2 py-1 border border-qc-primary rounded text-sm focus:outline-none focus:ring-2 focus:ring-qc-primary"
+                              autoFocus
+                              disabled={updatingEmail}
+                            />
+                            <button
+                              onClick={() => handleSaveEmail(license.id)}
+                              disabled={updatingEmail}
+                              className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
+                              title="Save"
+                            >
+                              {updatingEmail ? <Spinner size="sm" className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={updatingEmail}
+                              className="p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                              title="Cancel"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span>{license.email}</span>
+                            {!license.isActivated && (
+                              <button
+                                onClick={() => handleEditEmail(license)}
+                                className="p-1 text-gray-400 hover:text-qc-primary hover:bg-blue-50 rounded transition-colors opacity-0 group-hover:opacity-100"
+                                title="Edit email"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {license.isActivated && license.businessName ? license.businessName : <span className="text-gray-400">-</span>}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {license.isActivated && license.businessType ? license.businessType : <span className="text-gray-400">-</span>}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold capitalize border ${
+                          license.isActivated 
+                            ? 'bg-green-50 text-green-700 border-green-200' 
+                            : 'bg-orange-50 text-orange-700 border-orange-200'
+                        }`}>
+                          {license.isActivated ? (
+                            <CheckCircle className="w-3 h-3" />
+                          ) : (
+                            <Clock className="w-3 h-3" />
+                          )}
+                          {license.isActivated ? 'activated' : 'pending'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span 
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold capitalize border ${
+                            license.emailStatus === 'delivered' || license.emailStatus === 'opened'
+                              ? 'bg-green-50 text-green-700 border-green-200' 
+                              : license.emailStatus === 'bounced' || license.emailStatus === 'complained' || license.emailStatus === 'failed'
+                              ? 'bg-red-50 text-red-700 border-red-200'
+                              : license.emailStatus === 'sent'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-gray-50 text-gray-700 border-gray-200'
+                          }`}
+                        >
+                          {license.emailStatus === 'delivered' || license.emailStatus === 'opened' ? (
+                            <CheckCircle className="w-3 h-3" />
+                          ) : license.emailStatus === 'bounced' || license.emailStatus === 'complained' || license.emailStatus === 'failed' ? (
+                            <AlertCircle className="w-3 h-3" />
+                          ) : license.emailStatus === 'sent' ? (
+                            <Send className="w-3 h-3" />
+                          ) : (
+                            <Mail className="w-3 h-3" />
+                          )}
+                          {license.emailStatus || 'pending'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{formatDate(license.createdAt)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {license.activatedAt ? formatDate(license.activatedAt) : <span className="text-gray-400">-</span>}
+                      </td>
+                      <td className="px-6 py-4">
+                        {!license.isActivated && (
+                          <button 
+                            onClick={() => handleResendEmail(license.id)}
+                            className="p-2 cursor-pointer hover:text-primary transition-colors rounded-md hover:border-primary hover:border text-gray-600"
+                            title="Resend Invitation"
+                          >
+                          <span className="text-sm">Resend</span>
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         <div className="flex justify-between items-center mt-6 text-sm text-gray-500 px-2">

@@ -292,7 +292,7 @@ export function AddLicenseForm({ availableLicenses, onLicensesAdded }: AddLicens
           <div className="flex items-center gap-3">
             <label 
               htmlFor="csv-file"
-              className={`px-5 py-2.5 border-2 border-gray-200 bg-white rounded-lg font-medium text-gray-600 transition-all duration-300 flex items-center gap-2 ${
+              className={`px-4 py-2.5 border-2 border-gray-200 bg-white rounded-lg font-medium text-gray-600 transition-all duration-300 flex items-center gap-2 ${
                 availableLicenses === 0 || importing
                   ? 'opacity-50 cursor-not-allowed' 
                   : 'cursor-pointer hover:border-qc-primary hover:text-qc-primary hover:shadow-sm'
@@ -312,7 +312,7 @@ export function AddLicenseForm({ availableLicenses, onLicensesAdded }: AddLicens
             </a>
           </div>
           <div className="flex-1 min-w-0">
-            <span className="text-sm text-gray-600 truncate block">
+            <span className="text-sm text-gray-600 block">
               {importing ? 'Importing users...' : 'Upload multiple users via CSV or download the template first'}
             </span>
           </div>
