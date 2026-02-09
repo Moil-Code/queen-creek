@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { Spinner } from '@/components/ui/spinner';
@@ -13,8 +13,8 @@ const QC_CHAMBER_LOGO_URL = '/Queen Creek Chamber Of Commerce Logo Full Color RG
 
 function ResetPasswordContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const supabase = createClient();
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,23 +23,56 @@ function ResetPasswordContent() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Check if we have the necessary tokens from the URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token');
-    const type = hashParams.get('type');
+    // Listen for auth state changes - Supabase automatically handles the recovery token
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, 'Session:', !!session);
+      
+      if (event === 'PASSWORD_RECOVERY') {
+        // User clicked the recovery link and Supabase set up the session
+        setSessionReady(true);
+        setCheckingSession(false);
+        setError(null);
+      } else if (event === 'SIGNED_IN' && session) {
+        // Session established
+        setSessionReady(true);
+        setCheckingSession(false);
+        setError(null);
+      } else if (event === 'SIGNED_OUT') {
+        setSessionReady(false);
+      }
+    });
 
-    if (type === 'recovery' && accessToken) {
-      // Set the session with the recovery tokens
-      const supabase = createClient();
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken || '',
-      });
-    }
-  }, []);
+    // Also check if there's already a session (in case the event already fired)
+    const checkExistingSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setSessionReady(true);
+        setError(null);
+      } else {
+        // Check URL hash for recovery tokens (fallback)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const type = hashParams.get('type');
+        
+        if (!accessToken && !type) {
+          setError('Invalid reset link. Please request a new password reset.');
+        }
+      }
+      setCheckingSession(false);
+    };
+
+    // Small delay to allow auth state change to fire first
+    const timer = setTimeout(checkExistingSession, 500);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [supabase.auth]);
 
   const validatePassword = (pwd: string): string | null => {
     if (pwd.length < 8) {
@@ -61,6 +94,11 @@ function ResetPasswordContent() {
     e.preventDefault();
     setError(null);
 
+    if (!sessionReady) {
+      setError('Session not ready. Please use the link from your email.');
+      return;
+    }
+
     // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -77,8 +115,6 @@ function ResetPasswordContent() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
-
       const { error: updateError } = await supabase.auth.updateUser({
         password: password,
       });
@@ -101,11 +137,13 @@ function ResetPasswordContent() {
         type: "success"
       });
 
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
+      // Sign out and redirect to login after 2 seconds
+      setTimeout(async () => {
+        await supabase.auth.signOut();
         router.push('/login');
-      }, 3000);
+      }, 2000);
     } catch (err) {
+      console.error('Password update error:', err);
       setError('An unexpected error occurred. Please try again.');
       toast({
         title: "Error",
@@ -150,7 +188,12 @@ function ResetPasswordContent() {
           <div className="bg-white rounded-[24px] p-8 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] relative overflow-hidden animate-slide-in backdrop-blur-sm bg-opacity-95">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-qc-primary via-indigo-500 to-qc-secondary"></div>
 
-            {success ? (
+            {checkingSession ? (
+              <div className="text-center py-8">
+                <Spinner size="lg" className="mx-auto mb-4" />
+                <p className="text-gray-600">Verifying reset link...</p>
+              </div>
+            ) : success ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
@@ -167,7 +210,7 @@ function ResetPasswordContent() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
-            ) : (
+            ) : sessionReady ? (
               <>
                 <div className="text-center mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-2">Reset Your Password</h2>
@@ -245,21 +288,38 @@ function ResetPasswordContent() {
                   </div>
 
                   <button 
-                    type="submit"
-                    disabled={loading || !password || !confirmPassword}
-                    className="w-full bg-qc-primary text-white font-semibold py-3.5 rounded-xl hover:bg-blue-700 focus:ring-4 focus:ring-qc-primary/20 transition-all duration-300 shadow-lg shadow-qc-primary/20 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="submit" 
+                    disabled={loading || !sessionReady}
+                    className="w-full bg-qc-primary text-white py-3.5 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
-                        <Spinner size="sm" className="text-white border-white" />
-                        <span>Updating...</span>
+                        <Spinner size="sm" className="border-white" />
+                        Updating Password...
                       </>
                     ) : (
-                      <span>Reset Password</span>
+                      'Reset Password'
                     )}
                   </button>
                 </form>
               </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-8 h-8 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Invalid Reset Link</h2>
+                <p className="text-gray-600 mb-6">
+                  {error || 'This password reset link is invalid or has expired.'}
+                </p>
+                <Link 
+                  href="/forgot-password"
+                  className="inline-flex items-center gap-2 text-qc-primary hover:text-blue-700 font-medium transition-colors"
+                >
+                  Request New Reset Link
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             )}
           </div>
         </div>
